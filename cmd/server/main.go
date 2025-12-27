@@ -6,7 +6,10 @@ import (
 	"net/http"
 
 	"auto-marksheet-reader/internal/config"
+	"auto-marksheet-reader/internal/handlers"
+	"auto-marksheet-reader/internal/services"
 	"auto-marksheet-reader/internal/storage"
+
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 )
@@ -21,7 +24,12 @@ func main() {
 	// 3. Setup Router
 	r := mux.NewRouter()
 
-	// Basic Health Check Route
+	uploadService := &services.UploadService{}
+	uploadHandler := &handlers.UploadHandler{Service: uploadService}
+
+	r.HandleFunc("/api/upload", uploadHandler.UploadFile).Methods("POST")
+	// Upload File Route
+
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Server is running 🚀"))
 	}).Methods("GET")

@@ -1,0 +1,105 @@
+auto-marksheet-reader/
+│
+├── cmd/
+│   └── server/
+│       └── main.go
+│
+├── internal/
+│   ├── config/
+│   │   └── config.go
+│   │
+│   ├── routes/
+│   │   └── routes.go
+│   │
+│   ├── handlers/
+│   │   ├── upload_handler.go
+│   │   ├── scan_handler.go
+│   │   ├── ocr_handler.go
+│   │   ├── results_handler.go
+│   │   └── export_handler.go
+│   │
+│   ├── services/
+│   │   ├── file_service.go
+│   │   ├── ocr_service.go
+│   │   ├── preprocessor_service.go
+│   │   ├── extract_service.go
+│   │   ├── marksheet_service.go
+│   │   ├── export_excel_service.go
+│   │   └── export_pdf_service.go
+│   │
+│   ├── ocr/
+│   │   ├── tesseract.go
+│   │   ├── google_vision.go
+│   │   └── easyocr_microservice.go
+│   │
+│   ├── preprocess/
+│   │   ├── noise_reduction.go
+│   │   ├── rotation_fix.go
+│   │   └── contrast_adjust.go
+│   │
+│   ├── utils/
+│   │   ├── sanitizer.go
+│   │   ├── parser.go
+│   │   ├── validator.go
+│   │   ├── pdf_reader.go
+│   │   ├── image_reader.go
+│   │   ├── response.go
+│   │   └── logger.go
+│   │
+│   ├── storage/
+│   │   ├── local_storage.go
+│   │   ├── mongo.go
+│   │   └── models.go
+│   │
+│   └── templates/
+│       ├── pdf_template.html
+│       └── excel_template.json
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── FileUpload.jsx
+│   │   │   ├── CameraScanner.jsx
+│   │   │   ├── Loader.jsx
+│   │   │   └── ResultTable.jsx
+│   │   ├── pages/
+│   │   │   ├── Home.jsx
+│   │   │   ├── Scan.jsx
+│   │   │   ├── Extract.jsx
+│   │   │   └── Export.jsx
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   └── styles/
+│   │       └── globals.css
+│   └── package.json
+│
+├── scripts/
+│   ├── deploy.sh
+│   └── run_local.sh
+│
+├── uploads/           # temporary uploaded PDFs & images
+├── processed/         # cleaned images
+├── outputs/
+│   ├── excel/
+│   └── pdf/
+│
+├── docs/
+│   ├── api_endpoints.md
+│   ├── architecture.png
+│   ├── flow_diagram.png
+│   ├── demo_marksheet.pdf
+│   └── sample_output.xlsx
+│
+├── go.mod
+├── go.sum
+└── README.md
+
+go mod init auto-marksheet-reader
+go get github.com/gofiber/fiber/v2
+go get github.com/xuri/excelize/v2
+go get github.com/jung-kurt/gofpdf
+go get github.com/otiai10/gosseract/v2
+go get gocv.io/x/gocv
+go get github.com/pdfcpu/pdfcpu
+

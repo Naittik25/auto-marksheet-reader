@@ -2,20 +2,40 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
+
+	"auto-marksheet-reader/internal/config"
+	"auto-marksheet-reader/internal/storage"
+	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 func main() {
-	fmt.Println("Auto Marksheet Reader Backend is running on port 8080...")
+	// 1. Load Configuration
+	cfg := config.LoadConfig()
 
-	// Simple health check route
-	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintln(w, "Backend is Active!")
+	// 2. Connect to Database
+	storage.ConnectDB(cfg.MongoURI, cfg.DBName)
+
+	// 3. Setup Router
+	r := mux.NewRouter()
+
+	// Basic Health Check Route
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Server is running 🚀"))
+	}).Methods("GET")
+
+	// 4. Setup CORS (Allows frontend to talk to backend)
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:5173"}, // Vue/React default port
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowedHeaders: []string{"Content-Type"},
 	})
 
-	// Start server
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		fmt.Println("Error starting server:", err)
-	}
+	handler := c.Handler(r)
+
+	// 5. Start Server
+	fmt.Printf("Starting server on port %s...\n", cfg.Port)
+	log.Fatal(http.ListenAndServe(":"+cfg.Port, handler))
 }

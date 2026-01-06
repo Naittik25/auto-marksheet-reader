@@ -1,41 +1,53 @@
 package handlers
 
 import (
-	"net/http"
-
-	// UPDATE THIS IMPORT to match your go.mod name (either "auto-marksheet-reader" or "github.com/...")
 	"auto-marksheet-reader/internal/services"
 	"auto-marksheet-reader/internal/utils"
+	"fmt"
+	"net/http"
 )
 
 type UploadHandler struct {
 	Service *services.UploadService
 }
 
-// UploadFile handles the POST /upload request
 func (h *UploadHandler) UploadFile(w http.ResponseWriter, r *http.Request) {
-	// 1. Limit upload size to 10MB
+	// 1. Parse and Get File
 	r.ParseMultipartForm(10 << 20)
-
-	// 2. Get the file from the request
 	file, header, err := r.FormFile("file")
 	if err != nil {
-		utils.RespondWithError(w, http.StatusBadRequest, "Invalid file upload")
+		utils.RespondWithError(w, http.StatusBadRequest, "Invalid file")
 		return
 	}
 	defer file.Close()
 
-	// 3. Save the file using the service
+	// 2. Save File
 	path, err := h.Service.SaveFile(file, header)
 	if err != nil {
 		utils.RespondWithError(w, http.StatusInternalServerError, "Could not save file")
 		return
 	}
 
-	// 4. Respond with success
-	response := map[string]string{
-		"message": "File uploaded successfully",
-		"path":    path,
+	fmt.Println("✅ File saved at:", path)
+	fmt.Println("🤖 Starting OCR processing...")
+
+	// 3. Perform OCR
+	// ocrService := &services.OCRService{}
+	// extractedText, err := ocrService.PerformOCR(path)
+
+	extractedText := "OCR is temporarily disabled while we build Frontend."
+
+	if err != nil {
+		fmt.Println("❌ OCR Error:", err)
+		extractedText = "Error: " + err.Error()
+	} else {
+		fmt.Println("✅ Text Extracted!")
 	}
-	utils.RespondWithJSON(w, http.StatusOK, response)
+
+	// 4. Return Response (USING extractedText HERE)
+	utils.RespondWithJSON(w, http.StatusOK, map[string]string{
+		"message": "File processed successfully",
+		"path":    path,
+		"text":    extractedText, // Go requires this variable to be used here
+	})
 }

@@ -6,8 +6,7 @@ import (
 	"net/http"
 
 	"auto-marksheet-reader/internal/config"
-	"auto-marksheet-reader/internal/handlers"
-	"auto-marksheet-reader/internal/services"
+	"auto-marksheet-reader/internal/routes" // Import the new routes
 	"auto-marksheet-reader/internal/storage"
 
 	"github.com/gorilla/mux"
@@ -15,28 +14,26 @@ import (
 )
 
 func main() {
-	// 1. Load Configuration
+	// 1. Load Config
 	cfg := config.LoadConfig()
 
-	// 2. Connect to Database
+	// 2. Connect DB
 	storage.ConnectDB(cfg.MongoURI, cfg.DBName)
 
 	// 3. Setup Router
 	r := mux.NewRouter()
 
-	uploadService := &services.UploadService{}
-	uploadHandler := &handlers.UploadHandler{Service: uploadService}
+	// Register all routes from the routes package
+	routes.RegisterRoutes(r)
 
-	r.HandleFunc("/api/upload", uploadHandler.UploadFile).Methods("POST")
-	// Upload File Route
-
+	// Health Check
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Server is running 🚀"))
+		w.Write([]byte("Server is active"))
 	}).Methods("GET")
 
-	// 4. Setup CORS (Allows frontend to talk to backend)
+	// 4. CORS Setup
 	c := cors.New(cors.Options{
-		AllowedOrigins: []string{"http://localhost:5173"}, // Vue/React default port
+		AllowedOrigins: []string{"http://localhost:5173", "http://localhost:3000"},
 		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE"},
 		AllowedHeaders: []string{"Content-Type"},
 	})
